@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "7GtLIgvZdbc=",
+  "success": true,
+  "projectFilePath": "D:\\PROYECTO\\SistemaITAM\\SistemaITAM\\SistemaITAM.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\tic9\\.nuget\\packages\\microsoft.aspnetcore.app.internal.assets\\10.0.1\\microsoft.aspnetcore.app.internal.assets.10.0.1.nupkg.sha512"
+  ],
+  "logs": []
+}
