@@ -1,0 +1,109 @@
+@page "/equipos"
+@page "/activos"
+@page "/moviles"
+@inject IAssetService AssetService
+@inject IPlantService PlantService
+@inject IAreaService AreaService
+@inject IExcelExporter ExcelExporter
+@inject IJSRuntime JS
+
+<PageTitle>Inventario de activos</PageTitle>
+
+<MudPaper Class="pa-4" Elevation="2">
+    <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+        <MudSelect @bind-Value="_selectedTipo" Label="Tipo" Clearable="true" T="TipoActivo?" Immediate="true" ValueChanged="async _ => await LoadAsync()">
+            @foreach (var tipo in Enum.GetValues<TipoActivo>())
+            {
+                <MudSelectItem Value="tipo">@tipo</MudSelectItem>
+            }
+        </MudSelect>
+        <MudSelect @bind-Value="_selectedEstado" Label="Estado" Clearable="true" T="EstadoActivo?" Immediate="true" ValueChanged="async _ => await LoadAsync()">
+            @foreach (var estado in Enum.GetValues<EstadoActivo>())
+            {
+                <MudSelectItem Value="estado">@estado</MudSelectItem>
+            }
+        </MudSelect>
+        <MudSelect @bind-Value="_selectedPlanta" Label="Planta" Clearable="true" T="Guid?" Immediate="true" ValueChanged="async _ => await LoadAsync()">
+            @foreach (var planta in _plantas)
+            {
+                <MudSelectItem Value="planta.Id">@planta.Nombre</MudSelectItem>
+            }
+        </MudSelect>
+        <MudSelect @bind-Value="_selectedArea" Label="Área" Clearable="true" T="Guid?" Immediate="true" ValueChanged="async _ => await LoadAsync()">
+            @foreach (var area in _areas)
+            {
+                <MudSelectItem Value="area.Id">@area.Nombre</MudSelectItem>
+            }
+        </MudSelect>
+        <MudTextField @bind-Value="_search" Placeholder="Buscar serie o código" Immediate="true" OnDebounceIntervalElapsed="async _ => await LoadAsync()" DebounceInterval="300" />
+        <MudSpacer />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Exportar">Exportar inventario a Excel</MudButton>
+    </MudStack>
+
+    <MudTable Items="@_activos" Dense="true" Hover="true" Class="mt-4">
+        <HeaderContent>
+            <MudTh>Código</MudTh>
+            <MudTh>Serie</MudTh>
+            <MudTh>Tipo</MudTh>
+            <MudTh>Estado</MudTh>
+            <MudTh>Ubicación</MudTh>
+            <MudTh>Fecha alta</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Código">@context.CodigoPatrimonial</MudTd>
+            <MudTd DataLabel="Serie">@context.SerialNumber</MudTd>
+            <MudTd DataLabel="Tipo">@context.TipoActivo</MudTd>
+            <MudTd DataLabel="Estado">
+                <MudChip Color="@GetEstadoColor(context.Estado)" Variant="Variant.Outlined">@context.Estado</MudChip>
+            </MudTd>
+            <MudTd DataLabel="Ubicación">@context.Planta - @context.Area</MudTd>
+            <MudTd DataLabel="Fecha alta">@context.FechaAlta.ToLocalTime().ToString("dd/MM/yyyy")</MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudPaper>
+
+@code {
+    private TipoActivo? _selectedTipo;
+    private EstadoActivo? _selectedEstado;
+    private Guid? _selectedPlanta;
+    private Guid? _selectedArea;
+    private string? _search;
+    private List<AssetDto> _activos = [];
+    private List<Domain.Entities.Planta> _plantas = [];
+    private List<Domain.Entities.Area> _areas = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        _plantas = (await PlantService.GetAllAsync()).ToList();
+        _areas = (await AreaService.GetAllAsync()).ToList();
+        if (NavigationManager.Uri.EndsWith("/moviles", StringComparison.OrdinalIgnoreCase))
+        {
+            _selectedTipo = TipoActivo.Movil;
+        }
+        await LoadAsync();
+    }
+
+    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+
+    private async Task LoadAsync()
+    {
+        var filter = new AssetFilter(_selectedTipo, _selectedEstado, _selectedPlanta, _selectedArea, _search);
+        _activos = (await AssetService.GetAsync(filter)).ToList();
+        StateHasChanged();
+    }
+
+    private Color GetEstadoColor(EstadoActivo estado) => estado switch
+    {
+        EstadoActivo.Disponible => Color.Success,
+        EstadoActivo.Asignado => Color.Info,
+        EstadoActivo.EnMantenimiento => Color.Warning,
+        _ => Color.Error
+    };
+
+    private async Task Exportar()
+    {
+        var excelBytes = await ExcelExporter.ExportarActivosAsync(_activos);
+        var base64 = Convert.ToBase64String(excelBytes);
+        await JS.InvokeVoidAsync("downloadFile", $"inventario-{DateTime.Now:yyyyMMddHHmm}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", base64);
+    }
+}

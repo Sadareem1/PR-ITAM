@@ -1,0 +1,97 @@
+@page "/asignaciones"
+@inject IAssignmentService AssignmentService
+@inject IAssetService AssetService
+@inject IUserService UserService
+@inject IPlantService PlantService
+
+<PageTitle>Asignaciones</PageTitle>
+
+<MudGrid GutterSize="GutterSize.Large">
+    <MudItem xs="12" md="4">
+        <MudPaper Class="pa-4" Elevation="2">
+            <MudText Typo="Typo.h6">Nueva asignación</MudText>
+            <MudSelect @bind-Value="_selectedActivo" Label="Activo" T="Guid" Dense="true">
+                @foreach (var activo in _disponibles)
+                {
+                    <MudSelectItem Value="activo.Id">@activo.CodigoPatrimonial - @activo.SerialNumber</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect @bind-Value="_selectedUsuario" Label="Usuario" T="Guid" Dense="true" Class="mt-3">
+                @foreach (var usuario in _usuarios)
+                {
+                    <MudSelectItem Value="usuario.Id">@usuario.Nombres @usuario.Apellidos (@usuario.Planta)</MudSelectItem>
+                }
+            </MudSelect>
+            <MudButton Disabled="@(!_disponibles.Any() || !_usuarios.Any())" Class="mt-4" Variant="Variant.Filled" Color="Color.Primary" OnClick="Asignar">Asignar</MudButton>
+            @if (!string.IsNullOrWhiteSpace(_mensaje))
+            {
+                <MudAlert Severity="Severity.Success" Class="mt-3">@_mensaje</MudAlert>
+            }
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" md="8">
+        <MudPaper Class="pa-4" Elevation="1">
+            <MudText Typo="Typo.h6" Class="mb-2">Asignaciones recientes</MudText>
+            <MudTable Items="@_asignaciones" Dense="true" Hover="true">
+                <HeaderContent>
+                    <MudTh>Activo</MudTh>
+                    <MudTh>Usuario</MudTh>
+                    <MudTh>Planta</MudTh>
+                    <MudTh>Fecha</MudTh>
+                    <MudTh>Estado</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Activo">@context.Activo</MudTd>
+                    <MudTd DataLabel="Usuario">@context.Usuario</MudTd>
+                    <MudTd DataLabel="Planta">@context.Planta - @context.Area</MudTd>
+                    <MudTd DataLabel="Fecha">@context.FechaAsignacion.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</MudTd>
+                    <MudTd DataLabel="Estado">@context.Estado</MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private List<AssetDto> _disponibles = [];
+    private List<UserDto> _usuarios = [];
+    private List<AssignmentDto> _asignaciones = [];
+    private Guid _selectedActivo;
+    private Guid _selectedUsuario;
+    private string? _mensaje;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSources();
+        await LoadAsignaciones();
+    }
+
+    private async Task LoadSources()
+    {
+        _disponibles = (await AssetService.GetAsync(new AssetFilter(Estado: EstadoActivo.Disponible))).ToList();
+        _usuarios = (await UserService.GetAsync(new UserFilter())).ToList();
+        if (_disponibles.Any()) _selectedActivo = _disponibles.First().Id;
+        if (_usuarios.Any()) _selectedUsuario = _usuarios.First().Id;
+    }
+
+    private async Task LoadAsignaciones()
+    {
+        _asignaciones = (await AssignmentService.GetAsync()).OrderByDescending(a => a.FechaAsignacion).Take(10).ToList();
+    }
+
+    private async Task Asignar()
+    {
+        try
+        {
+            var adminId = Guid.Empty; // en implementación real se utilizaría el usuario autenticado
+            var result = await AssignmentService.AssignAsync(new AssignmentRequestDto(_selectedActivo, _selectedUsuario, adminId));
+            _mensaje = $"Asignación registrada y acta generada ({result.Asignacion.RutaPdfActa}).";
+            await LoadSources();
+            await LoadAsignaciones();
+        }
+        catch (Exception ex)
+        {
+            _mensaje = ex.Message;
+        }
+    }
+}
