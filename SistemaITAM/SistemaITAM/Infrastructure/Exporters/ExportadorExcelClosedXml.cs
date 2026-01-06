@@ -4,9 +4,9 @@ using SistemaITAM.Application.Interfaces;
 
 namespace SistemaITAM.Infrastructure.Exporters;
 
-public class ClosedXmlExcelExporter : IExcelExporter
+public class ExportadorExcelClosedXml : IExportadorExcel
 {
-    public Task<byte[]> ExportarActivosAsync(IEnumerable<AssetDto> activos)
+    public Task<byte[]> ExportarActivosAsync(IEnumerable<ActivoDto> activos)
     {
         using var workbook = new XLWorkbook();
         var worksheet = workbook.AddWorksheet("Inventario");

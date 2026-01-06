@@ -6,9 +6,9 @@ using SistemaITAM.Application.Interfaces;
 
 namespace SistemaITAM.Infrastructure.Exporters;
 
-public class QuestPdfGenerator : IPdfGenerator
+public class GeneradorPdfQuest : IGeneradorPdf
 {
-    public Task<byte[]> GenerarActaAsignacionAsync(AssignmentDto asignacion)
+    public Task<byte[]> GenerarActaAsignacionAsync(AsignacionDto asignacion)
     {
         var bytes = Document.Create(container =>
         {

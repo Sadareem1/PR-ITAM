@@ -1,6 +1,6 @@
 @page "/areas"
-@inject IAreaService AreaService
-@inject IUserService UserService
+@inject IServicioAreas AreaService
+@inject IServicioUsuarios UserService
 
 <PageTitle>Áreas</PageTitle>
 
@@ -20,7 +20,7 @@
 </MudPaper>
 
 @code {
-    private List<UserByAreaDto> _areas = [];
+    private List<UsuarioPorAreaDto> _areas = [];
     private HashSet<string> _areasActivas = [];
 
     protected override async Task OnInitializedAsync()

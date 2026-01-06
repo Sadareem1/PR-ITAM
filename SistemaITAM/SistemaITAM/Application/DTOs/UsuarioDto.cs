@@ -2,7 +2,7 @@ using SistemaITAM.Domain.Enums;
 
 namespace SistemaITAM.Application.DTOs;
 
-public record UserDto(
+public record UsuarioDto(
     Guid Id,
     string Nombres,
     string Apellidos,
@@ -13,4 +13,4 @@ public record UserDto(
     string Area,
     EstadoUsuario Estado);
 
-public record UserByAreaDto(string Area, string Planta, int TotalUsuarios);
+public record UsuarioPorAreaDto(string Area, string Planta, int TotalUsuarios);

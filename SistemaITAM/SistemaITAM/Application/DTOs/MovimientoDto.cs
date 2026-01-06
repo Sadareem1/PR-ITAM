@@ -2,7 +2,7 @@ using SistemaITAM.Domain.Enums;
 
 namespace SistemaITAM.Application.DTOs;
 
-public record MovementLogDto(
+public record MovimientoDto(
     Guid Id,
     Guid ActivoId,
     string Activo,

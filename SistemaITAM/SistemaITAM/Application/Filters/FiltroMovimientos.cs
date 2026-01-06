@@ -2,7 +2,7 @@ using SistemaITAM.Domain.Enums;
 
 namespace SistemaITAM.Application.Filters;
 
-public record MovementFilter(
+public record FiltroMovimientos(
     Guid? ActivoId = null,
     TipoMovimiento? Tipo = null,
     Guid? PlantaId = null,

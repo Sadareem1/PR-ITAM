@@ -1,7 +1,7 @@
 @page "/usuarios"
-@inject IUserService UserService
-@inject IPlantService PlantService
-@inject IAreaService AreaService
+@inject IServicioUsuarios UserService
+@inject IServicioPlantas PlantService
+@inject IServicioAreas AreaService
 
 <PageTitle>Usuarios</PageTitle>
 
@@ -63,8 +63,8 @@
     private Guid? _selectedPlanta;
     private Guid? _selectedArea;
     private string? _search;
-    private List<UserDto> _usuarios = [];
-    private List<UserByAreaDto> _totalesPorArea = [];
+    private List<UsuarioDto> _usuarios = [];
+    private List<UsuarioPorAreaDto> _totalesPorArea = [];
     private List<Domain.Entities.Planta> _plantas = [];
     private List<Domain.Entities.Area> _areas = [];
     private int _totalUsuarios;
@@ -78,7 +78,7 @@
 
     private async Task LoadAsync()
     {
-        var filter = new UserFilter(_selectedPlanta, _selectedArea, _search);
+        var filter = new FiltroUsuarios(_selectedPlanta, _selectedArea, _search);
         _usuarios = (await UserService.GetAsync(filter)).ToList();
         _totalesPorArea = (await UserService.GetTotalsByAreaAsync(_selectedPlanta)).ToList();
         _totalUsuarios = _usuarios.Count;

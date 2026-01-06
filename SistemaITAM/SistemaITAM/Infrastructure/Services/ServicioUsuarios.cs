@@ -5,16 +5,16 @@ using SistemaITAM.Domain.Entities;
 
 namespace SistemaITAM.Infrastructure.Services;
 
-public class UserService : IUserService
+public class ServicioUsuarios : IServicioUsuarios
 {
-    private readonly InMemoryDataContext _context;
+    private readonly ContextoDatosEnMemoria _context;
 
-    public UserService(InMemoryDataContext context)
+    public ServicioUsuarios(ContextoDatosEnMemoria context)
     {
         _context = context;
     }
 
-    public Task<IReadOnlyCollection<UserDto>> GetAsync(UserFilter filter)
+    public Task<IReadOnlyCollection<UsuarioDto>> GetAsync(FiltroUsuarios filter)
     {
         var query = _context.Usuarios.AsEnumerable();
 
@@ -37,19 +37,19 @@ public class UserService : IUserService
         {
             var planta = _context.Plantas.First(p => p.Id == u.PlantaId);
             var area = _context.Areas.First(a => a.Id == u.AreaId);
-            return new UserDto(u.Id, u.Nombres, u.Apellidos, u.DNI, u.PlantaId, u.AreaId, planta.Nombre, area.Nombre, u.Estado);
+            return new UsuarioDto(u.Id, u.Nombres, u.Apellidos, u.DNI, u.PlantaId, u.AreaId, planta.Nombre, area.Nombre, u.Estado);
         }).ToList();
 
-        return Task.FromResult((IReadOnlyCollection<UserDto>)mapped);
+        return Task.FromResult((IReadOnlyCollection<UsuarioDto>)mapped);
     }
 
-    public async Task<int> CountAsync(UserFilter filter)
+    public async Task<int> CountAsync(FiltroUsuarios filter)
     {
         var users = await GetAsync(filter);
         return users.Count;
     }
 
-    public Task<IReadOnlyCollection<UserByAreaDto>> GetTotalsByAreaAsync(Guid? plantaId = null)
+    public Task<IReadOnlyCollection<UsuarioPorAreaDto>> GetTotalsByAreaAsync(Guid? plantaId = null)
     {
         var query = _context.Usuarios.AsEnumerable();
         if (plantaId.HasValue)
@@ -63,11 +63,11 @@ public class UserService : IUserService
             {
                 var area = _context.Areas.First(a => a.Id == g.Key.AreaId);
                 var planta = _context.Plantas.First(p => p.Id == g.Key.PlantaId);
-                return new UserByAreaDto(area.Nombre, planta.Nombre, g.Count());
+                return new UsuarioPorAreaDto(area.Nombre, planta.Nombre, g.Count());
             })
             .ToList();
 
-        return Task.FromResult((IReadOnlyCollection<UserByAreaDto>)totals);
+        return Task.FromResult((IReadOnlyCollection<UsuarioPorAreaDto>)totals);
     }
 
     public Task<Usuario> CreateAsync(Usuario usuario)

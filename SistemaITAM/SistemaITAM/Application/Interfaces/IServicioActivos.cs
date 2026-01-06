@@ -4,10 +4,10 @@ using SistemaITAM.Domain.Entities;
 
 namespace SistemaITAM.Application.Interfaces;
 
-public interface IAssetService
+public interface IServicioActivos
 {
-    Task<IReadOnlyCollection<AssetDto>> GetAsync(AssetFilter filter);
-    Task<AssetDto?> GetByIdAsync(Guid id);
+    Task<IReadOnlyCollection<ActivoDto>> GetAsync(FiltroActivos filter);
+    Task<ActivoDto?> GetByIdAsync(Guid id);
     Task<Activo> CreateAsync(Activo activo);
     Task<Activo?> UpdateEstadoAsync(Guid id, Domain.Enums.EstadoActivo estado);
 }

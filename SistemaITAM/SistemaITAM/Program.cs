@@ -11,16 +11,16 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddMudServices();
 
-builder.Services.AddSingleton<InMemoryDataContext>();
-builder.Services.AddScoped<IPlantService, PlantService>();
-builder.Services.AddScoped<IAreaService, AreaService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IAssetService, AssetService>();
-builder.Services.AddScoped<IMovementLogService, MovementLogService>();
-builder.Services.AddScoped<IAssignmentService, AssignmentService>();
-builder.Services.AddScoped<IDashboardService, DashboardService>();
-builder.Services.AddScoped<IExcelExporter, ClosedXmlExcelExporter>();
-builder.Services.AddScoped<IPdfGenerator, QuestPdfGenerator>();
+builder.Services.AddSingleton<ContextoDatosEnMemoria>();
+builder.Services.AddScoped<IServicioPlantas, ServicioPlantas>();
+builder.Services.AddScoped<IServicioAreas, ServicioAreas>();
+builder.Services.AddScoped<IServicioUsuarios, ServicioUsuarios>();
+builder.Services.AddScoped<IServicioActivos, ServicioActivos>();
+builder.Services.AddScoped<IServicioMovimientos, ServicioMovimientos>();
+builder.Services.AddScoped<IServicioAsignaciones, ServicioAsignaciones>();
+builder.Services.AddScoped<IServicioDashboard, ServicioDashboard>();
+builder.Services.AddScoped<IExportadorExcel, ExportadorExcelClosedXml>();
+builder.Services.AddScoped<IGeneradorPdf, GeneradorPdfQuest>();
 
 var app = builder.Build();
 

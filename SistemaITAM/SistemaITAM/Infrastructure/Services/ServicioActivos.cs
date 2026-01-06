@@ -6,16 +6,16 @@ using SistemaITAM.Domain.Enums;
 
 namespace SistemaITAM.Infrastructure.Services;
 
-public class AssetService : IAssetService
+public class ServicioActivos : IServicioActivos
 {
-    private readonly InMemoryDataContext _context;
+    private readonly ContextoDatosEnMemoria _context;
 
-    public AssetService(InMemoryDataContext context)
+    public ServicioActivos(ContextoDatosEnMemoria context)
     {
         _context = context;
     }
 
-    public Task<IReadOnlyCollection<AssetDto>> GetAsync(AssetFilter filter)
+    public Task<IReadOnlyCollection<ActivoDto>> GetAsync(FiltroActivos filter)
     {
         var query = _context.Activos.AsEnumerable();
 
@@ -46,10 +46,10 @@ public class AssetService : IAssetService
         }
 
         var mapped = query.Select(MapToDto).ToList();
-        return Task.FromResult((IReadOnlyCollection<AssetDto>)mapped);
+        return Task.FromResult((IReadOnlyCollection<ActivoDto>)mapped);
     }
 
-    public Task<AssetDto?> GetByIdAsync(Guid id)
+    public Task<ActivoDto?> GetByIdAsync(Guid id)
     {
         var asset = _context.Activos.FirstOrDefault(a => a.Id == id);
         return Task.FromResult(asset is null ? null : MapToDto(asset));
@@ -73,11 +73,11 @@ public class AssetService : IAssetService
         return Task.FromResult<Activo?>(activo);
     }
 
-    private AssetDto MapToDto(Activo activo)
+    private ActivoDto MapToDto(Activo activo)
     {
         var planta = _context.Plantas.First(p => p.Id == activo.PlantaId);
         var area = _context.Areas.First(a => a.Id == activo.AreaId);
-        return new AssetDto(activo.Id, activo.CodigoPatrimonial, activo.SerialNumber, activo.Marca, activo.Modelo, activo.TipoActivo,
+        return new ActivoDto(activo.Id, activo.CodigoPatrimonial, activo.SerialNumber, activo.Marca, activo.Modelo, activo.TipoActivo,
             activo.EstadoActivo, activo.PlantaId, activo.AreaId, planta.Nombre, area.Nombre, activo.Observaciones, activo.FechaAlta);
     }
 }

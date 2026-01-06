@@ -1,5 +1,5 @@
 @page "/"
-@inject IDashboardService DashboardService
+@inject IServicioDashboard DashboardService
 
 <PageTitle>Dashboard</PageTitle>
 
@@ -64,7 +64,7 @@ else
 }
 
 @code {
-    private DashboardSummaryDto? _summary;
+    private ResumenDashboardDto? _summary;
 
     protected override async Task OnInitializedAsync()
     {

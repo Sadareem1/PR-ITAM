@@ -2,7 +2,7 @@ using SistemaITAM.Domain.Entities;
 
 namespace SistemaITAM.Application.Interfaces;
 
-public interface IPlantService
+public interface IServicioPlantas
 {
     Task<IReadOnlyCollection<Planta>> GetAllAsync();
     Task<Planta?> GetAsync(Guid id);

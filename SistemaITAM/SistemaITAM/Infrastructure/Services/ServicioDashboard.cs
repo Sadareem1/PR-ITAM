@@ -4,18 +4,18 @@ using SistemaITAM.Domain.Enums;
 
 namespace SistemaITAM.Infrastructure.Services;
 
-public class DashboardService : IDashboardService
+public class ServicioDashboard : IServicioDashboard
 {
-    private readonly InMemoryDataContext _context;
-    private readonly IMovementLogService _movementLogService;
+    private readonly ContextoDatosEnMemoria _context;
+    private readonly IServicioMovimientos _movementLogService;
 
-    public DashboardService(InMemoryDataContext context, IMovementLogService movementLogService)
+    public ServicioDashboard(ContextoDatosEnMemoria context, IServicioMovimientos movementLogService)
     {
         _context = context;
         _movementLogService = movementLogService;
     }
 
-    public async Task<DashboardSummaryDto> BuildAsync()
+    public async Task<ResumenDashboardDto> BuildAsync()
     {
         var resumenPlanta = _context.Plantas.Select(planta =>
         {
@@ -25,10 +25,10 @@ public class DashboardService : IDashboardService
             return new PlantaResumenDto(planta.Nombre, activos, usuarios, asignaciones);
         }).ToList();
 
-        var movimientos = await _movementLogService.GetAsync(new Application.Filters.MovementFilter());
+        var movimientos = await _movementLogService.GetAsync(new Application.Filters.FiltroMovimientos());
         var ultimos = movimientos.Take(6).Select(m => new MovimientoRecienteDto(m.Descripcion, m.Fecha, m.Planta, m.Area, m.Tipo.ToString())).ToList();
 
-        return new DashboardSummaryDto(
+        return new ResumenDashboardDto(
             _context.Activos.Count,
             _context.Activos.Count(a => a.EstadoActivo == EstadoActivo.Asignado),
             _context.Usuarios.Count(u => u.Estado == EstadoUsuario.Activo),

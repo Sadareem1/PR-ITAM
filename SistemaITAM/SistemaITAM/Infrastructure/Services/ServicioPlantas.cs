@@ -3,11 +3,11 @@ using SistemaITAM.Domain.Entities;
 
 namespace SistemaITAM.Infrastructure.Services;
 
-public class PlantService : IPlantService
+public class ServicioPlantas : IServicioPlantas
 {
-    private readonly InMemoryDataContext _context;
+    private readonly ContextoDatosEnMemoria _context;
 
-    public PlantService(InMemoryDataContext context)
+    public ServicioPlantas(ContextoDatosEnMemoria context)
     {
         _context = context;
     }

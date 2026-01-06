@@ -2,7 +2,7 @@ using SistemaITAM.Application.DTOs;
 
 namespace SistemaITAM.Application.Interfaces;
 
-public interface IDashboardService
+public interface IServicioDashboard
 {
-    Task<DashboardSummaryDto> BuildAsync();
+    Task<ResumenDashboardDto> BuildAsync();
 }

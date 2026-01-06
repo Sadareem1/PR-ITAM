@@ -6,18 +6,18 @@ using SistemaITAM.Domain.Enums;
 
 namespace SistemaITAM.Infrastructure.Services;
 
-public class MovementLogService : IMovementLogService
+public class ServicioMovimientos : IServicioMovimientos
 {
-    private readonly InMemoryDataContext _context;
+    private readonly ContextoDatosEnMemoria _context;
 
-    public MovementLogService(InMemoryDataContext context)
+    public ServicioMovimientos(ContextoDatosEnMemoria context)
     {
         _context = context;
     }
 
-    public Task<IReadOnlyCollection<MovementLogDto>> GetAsync(MovementFilter filter)
+    public Task<IReadOnlyCollection<MovimientoDto>> GetAsync(FiltroMovimientos filter)
     {
-        var query = _context.MovementLogs.AsEnumerable();
+        var query = _context.Movimientos.AsEnumerable();
 
         if (filter.ActivoId.HasValue)
         {
@@ -57,11 +57,11 @@ public class MovementLogService : IMovementLogService
             {
                 var activo = _context.Activos.FirstOrDefault(a => a.Id == m.ActivoId);
                 var nombreActivo = activo is null ? "Activo" : $"{activo.CodigoPatrimonial} / {activo.SerialNumber}";
-                return new MovementLogDto(m.Id, m.ActivoId, nombreActivo, m.TipoMovimiento, m.DescripcionDetallada, m.FechaMovimiento, m.PlantaOrigen, m.AreaOrigen, m.Modulo);
+                return new MovimientoDto(m.Id, m.ActivoId, nombreActivo, m.TipoMovimiento, m.DescripcionDetallada, m.FechaMovimiento, m.PlantaOrigen, m.AreaOrigen, m.Modulo);
             })
             .ToList();
 
-        return Task.FromResult((IReadOnlyCollection<MovementLogDto>)mapped);
+        return Task.FromResult((IReadOnlyCollection<MovimientoDto>)mapped);
     }
 
     public Task<MovementLog> RegistrarAsync(Guid activoId, TipoMovimiento tipo, string descripcion, ModuloSistema modulo, string planta, string area, Guid? administradorId = null)
@@ -78,7 +78,7 @@ public class MovementLogService : IMovementLogService
             FechaMovimiento = DateTime.UtcNow
         };
 
-        _context.MovementLogs.Add(log);
+        _context.Movimientos.Add(log);
         return Task.FromResult(log);
     }
 }

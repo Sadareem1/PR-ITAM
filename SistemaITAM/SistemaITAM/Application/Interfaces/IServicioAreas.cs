@@ -2,7 +2,7 @@ using SistemaITAM.Domain.Entities;
 
 namespace SistemaITAM.Application.Interfaces;
 
-public interface IAreaService
+public interface IServicioAreas
 {
     Task<IReadOnlyCollection<Area>> GetAllAsync();
     Task<Area?> GetAsync(Guid id);

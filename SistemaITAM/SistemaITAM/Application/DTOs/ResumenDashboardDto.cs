@@ -1,6 +1,6 @@
 namespace SistemaITAM.Application.DTOs;
 
-public record DashboardSummaryDto(
+public record ResumenDashboardDto(
     int TotalActivos,
     int ActivosAsignados,
     int UsuariosActivos,

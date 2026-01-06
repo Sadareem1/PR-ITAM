@@ -5,7 +5,7 @@ using SistemaITAM.Domain.Enums;
 
 namespace SistemaITAM.Infrastructure.Services;
 
-public class InMemoryDataContext
+public class ContextoDatosEnMemoria
 {
     public List<Planta> Plantas { get; } = [];
     public List<Area> Areas { get; } = [];
@@ -13,9 +13,9 @@ public class InMemoryDataContext
     public List<Activo> Activos { get; } = [];
     public List<Asignacion> Asignaciones { get; } = [];
     public List<Administrador> Administradores { get; } = [];
-    public List<MovementLog> MovementLogs { get; } = [];
+    public List<MovementLog> Movimientos { get; } = [];
 
-    public InMemoryDataContext()
+    public ContextoDatosEnMemoria()
     {
         SeedPlantas();
         SeedAreas();
@@ -106,7 +106,7 @@ public class InMemoryDataContext
         {
             var planta = Plantas.First(p => p.Id == activo.PlantaId);
             var area = Areas.First(a => a.Id == activo.AreaId);
-            MovementLogs.Add(new MovementLog
+            Movimientos.Add(new MovementLog
             {
                 ActivoId = activo.Id,
                 TipoMovimiento = TipoMovimiento.Creacion,

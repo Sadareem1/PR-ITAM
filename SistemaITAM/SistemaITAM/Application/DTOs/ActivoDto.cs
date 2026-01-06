@@ -2,7 +2,7 @@ using SistemaITAM.Domain.Enums;
 
 namespace SistemaITAM.Application.DTOs;
 
-public record AssetDto(
+public record ActivoDto(
     Guid Id,
     string CodigoPatrimonial,
     string SerialNumber,

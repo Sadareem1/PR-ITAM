@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using SistemaITAM.Application.DTOs;
 using SistemaITAM.Application.Interfaces;
 using SistemaITAM.Domain.Entities;
@@ -6,27 +5,27 @@ using SistemaITAM.Domain.Enums;
 
 namespace SistemaITAM.Infrastructure.Services;
 
-public class AssignmentService : IAssignmentService
+public class ServicioAsignaciones : IServicioAsignaciones
 {
-    private readonly InMemoryDataContext _context;
-    private readonly IMovementLogService _movementLogService;
-    private readonly IPdfGenerator _pdfGenerator;
+    private readonly ContextoDatosEnMemoria _context;
+    private readonly IServicioMovimientos _movementLogService;
+    private readonly IGeneradorPdf _pdfGenerator;
     private readonly SemaphoreSlim _semaphore = new(1, 1);
 
-    public AssignmentService(InMemoryDataContext context, IMovementLogService movementLogService, IPdfGenerator pdfGenerator)
+    public ServicioAsignaciones(ContextoDatosEnMemoria context, IServicioMovimientos movementLogService, IGeneradorPdf pdfGenerator)
     {
         _context = context;
         _movementLogService = movementLogService;
         _pdfGenerator = pdfGenerator;
     }
 
-    public Task<IReadOnlyCollection<AssignmentDto>> GetAsync()
+    public Task<IReadOnlyCollection<AsignacionDto>> GetAsync()
     {
         var mapped = _context.Asignaciones.Select(MapToDto).ToList();
-        return Task.FromResult((IReadOnlyCollection<AssignmentDto>)mapped);
+        return Task.FromResult((IReadOnlyCollection<AsignacionDto>)mapped);
     }
 
-    public async Task<AssignmentResultDto> AssignAsync(AssignmentRequestDto request)
+    public async Task<ResultadoAsignacionDto> AssignAsync(SolicitudAsignacionDto request)
     {
         await _semaphore.WaitAsync();
         try
@@ -62,7 +61,7 @@ public class AssignmentService : IAssignmentService
             var pdf = await _pdfGenerator.GenerarActaAsignacionAsync(dto);
             asignacion.RutaPdfActa = $"/actas/{asignacion.Id}.pdf";
 
-            return new AssignmentResultDto(dto, pdf);
+            return new ResultadoAsignacionDto(dto, pdf);
         }
         catch
         {
@@ -87,12 +86,12 @@ public class AssignmentService : IAssignmentService
         }
     }
 
-    private AssignmentDto MapToDto(Asignacion asignacion)
+    private AsignacionDto MapToDto(Asignacion asignacion)
     {
         var activo = _context.Activos.First(a => a.Id == asignacion.ActivoId);
         var usuario = _context.Usuarios.First(u => u.Id == asignacion.UsuarioId);
         var planta = _context.Plantas.First(p => p.Id == activo.PlantaId);
         var area = _context.Areas.First(a => a.Id == activo.AreaId);
-        return new AssignmentDto(asignacion.Id, asignacion.ActivoId, asignacion.UsuarioId, asignacion.AdministradorId, asignacion.FechaAsignacion, asignacion.EstadoAsignacion, asignacion.RutaPdfActa, activo.CodigoPatrimonial, usuario.NombreCompleto, planta.Nombre, area.Nombre);
+        return new AsignacionDto(asignacion.Id, asignacion.ActivoId, asignacion.UsuarioId, asignacion.AdministradorId, asignacion.FechaAsignacion, asignacion.EstadoAsignacion, asignacion.RutaPdfActa, activo.CodigoPatrimonial, usuario.NombreCompleto, planta.Nombre, area.Nombre);
     }
 }

@@ -1,8 +1,8 @@
 @page "/asignaciones"
-@inject IAssignmentService AssignmentService
-@inject IAssetService AssetService
-@inject IUserService UserService
-@inject IPlantService PlantService
+@inject IServicioAsignaciones AssignmentService
+@inject IServicioActivos AssetService
+@inject IServicioUsuarios UserService
+@inject IServicioPlantas PlantService
 
 <PageTitle>Asignaciones</PageTitle>
 
@@ -53,9 +53,9 @@
 </MudGrid>
 
 @code {
-    private List<AssetDto> _disponibles = [];
-    private List<UserDto> _usuarios = [];
-    private List<AssignmentDto> _asignaciones = [];
+    private List<ActivoDto> _disponibles = [];
+    private List<UsuarioDto> _usuarios = [];
+    private List<AsignacionDto> _asignaciones = [];
     private Guid _selectedActivo;
     private Guid _selectedUsuario;
     private string? _mensaje;
@@ -68,8 +68,8 @@
 
     private async Task LoadSources()
     {
-        _disponibles = (await AssetService.GetAsync(new AssetFilter(Estado: EstadoActivo.Disponible))).ToList();
-        _usuarios = (await UserService.GetAsync(new UserFilter())).ToList();
+        _disponibles = (await AssetService.GetAsync(new FiltroActivos(Estado: EstadoActivo.Disponible))).ToList();
+        _usuarios = (await UserService.GetAsync(new FiltroUsuarios())).ToList();
         if (_disponibles.Any()) _selectedActivo = _disponibles.First().Id;
         if (_usuarios.Any()) _selectedUsuario = _usuarios.First().Id;
     }
@@ -84,7 +84,7 @@
         try
         {
             var adminId = Guid.Empty; // en implementación real se utilizaría el usuario autenticado
-            var result = await AssignmentService.AssignAsync(new AssignmentRequestDto(_selectedActivo, _selectedUsuario, adminId));
+            var result = await AssignmentService.AssignAsync(new SolicitudAsignacionDto(_selectedActivo, _selectedUsuario, adminId));
             _mensaje = $"Asignación registrada y acta generada ({result.Asignacion.RutaPdfActa}).";
             await LoadSources();
             await LoadAsignaciones();

@@ -2,7 +2,7 @@ using SistemaITAM.Domain.Enums;
 
 namespace SistemaITAM.Application.DTOs;
 
-public record AssignmentDto(
+public record AsignacionDto(
     Guid Id,
     Guid ActivoId,
     Guid UsuarioId,
@@ -15,5 +15,5 @@ public record AssignmentDto(
     string Planta,
     string Area);
 
-public record AssignmentRequestDto(Guid ActivoId, Guid UsuarioId, Guid AdministradorId);
-public record AssignmentResultDto(AssignmentDto Asignacion, byte[] PdfActa);
+public record SolicitudAsignacionDto(Guid ActivoId, Guid UsuarioId, Guid AdministradorId);
+public record ResultadoAsignacionDto(AsignacionDto Asignacion, byte[] PdfActa);

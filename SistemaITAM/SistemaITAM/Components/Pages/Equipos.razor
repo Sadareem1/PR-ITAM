@@ -1,10 +1,10 @@
 @page "/equipos"
 @page "/activos"
 @page "/moviles"
-@inject IAssetService AssetService
-@inject IPlantService PlantService
-@inject IAreaService AreaService
-@inject IExcelExporter ExcelExporter
+@inject IServicioActivos AssetService
+@inject IServicioPlantas PlantService
+@inject IServicioAreas AreaService
+@inject IExportadorExcel ExcelExporter
 @inject IJSRuntime JS
 
 <PageTitle>Inventario de activos</PageTitle>
@@ -68,7 +68,7 @@
     private Guid? _selectedPlanta;
     private Guid? _selectedArea;
     private string? _search;
-    private List<AssetDto> _activos = [];
+    private List<ActivoDto> _activos = [];
     private List<Domain.Entities.Planta> _plantas = [];
     private List<Domain.Entities.Area> _areas = [];
 
@@ -87,7 +87,7 @@
 
     private async Task LoadAsync()
     {
-        var filter = new AssetFilter(_selectedTipo, _selectedEstado, _selectedPlanta, _selectedArea, _search);
+        var filter = new FiltroActivos(_selectedTipo, _selectedEstado, _selectedPlanta, _selectedArea, _search);
         _activos = (await AssetService.GetAsync(filter)).ToList();
         StateHasChanged();
     }
