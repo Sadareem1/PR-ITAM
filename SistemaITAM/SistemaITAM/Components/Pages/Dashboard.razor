@@ -1,0 +1,73 @@
+@page "/"
+@inject IServicioDashboard DashboardService
+
+<PageTitle>Dashboard</PageTitle>
+
+@if (_summary is null)
+{
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+}
+else
+{
+    <MudGrid GutterSize="GutterSize.Medium">
+        <MudItem xs="12" md="3">
+            <MudPaper Class="pa-4" Elevation="3">
+                <MudText Typo="Typo.subtitle2">Activos</MudText>
+                <MudText Typo="Typo.h4">@_summary.TotalActivos</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" md="3">
+            <MudPaper Class="pa-4" Elevation="3">
+                <MudText Typo="Typo.subtitle2">Asignados</MudText>
+                <MudText Typo="Typo.h4">@_summary.ActivosAsignados</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" md="3">
+            <MudPaper Class="pa-4" Elevation="3">
+                <MudText Typo="Typo.subtitle2">Usuarios activos</MudText>
+                <MudText Typo="Typo.h4">@_summary.UsuariosActivos</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" md="3">
+            <MudPaper Class="pa-4" Elevation="3">
+                <MudText Typo="Typo.subtitle2">Plantas</MudText>
+                <MudText Typo="Typo.h4">@_summary.PlantasActivas</MudText>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+
+    <MudGrid Class="mt-6" GutterSize="GutterSize.Medium">
+        <MudItem xs="12" md="6">
+            <MudPaper Class="pa-4" Elevation="2">
+                <MudText Typo="Typo.h6" Class="mb-2">Resumen por planta</MudText>
+                <MudChart ChartType="ChartType.Bar" Labels="@_summary.ResumenPorPlanta.Select(p => p.Planta).ToArray()" TData="double[]" Data="@new [] { _summary.ResumenPorPlanta.Select(p => (double)p.TotalActivos).ToArray(), _summary.ResumenPorPlanta.Select(p => (double)p.AsignacionesActivas).ToArray() }" />
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudPaper Class="pa-4" Elevation="2">
+                <MudText Typo="Typo.h6" Class="mb-2">Últimos movimientos</MudText>
+                <MudTable Items="@_summary.UltimosMovimientos">
+                    <HeaderContent>
+                        <MudTh>Fecha</MudTh>
+                        <MudTh>Detalle</MudTh>
+                        <MudTh>Ubicación</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Fecha">@context.Fecha.ToLocalTime().ToString("dd/MM HH:mm")</MudTd>
+                        <MudTd DataLabel="Detalle">@context.Descripcion (@context.Tipo)</MudTd>
+                        <MudTd DataLabel="Ubicación">@context.Planta - @context.Area</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+}
+
+@code {
+    private ResumenDashboardDto? _summary;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _summary = await DashboardService.BuildAsync();
+    }
+}

@@ -1,0 +1,28 @@
+@page "/plantas"
+@inject IServicioPlantas PlantService
+
+<PageTitle>Plantas</PageTitle>
+
+<MudPaper Class="pa-4" Elevation="2">
+    <MudTable Items="@_plantas" Dense="true">
+        <HeaderContent>
+            <MudTh>Planta</MudTh>
+            <MudTh>Estado</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Planta">@context.Nombre</MudTd>
+            <MudTd DataLabel="Estado">
+                <MudChip Color="@(context.Activa ? Color.Success : Color.Error)" Variant="Variant.Outlined">@(context.Activa ? "Activa" : "Inactiva")</MudChip>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudPaper>
+
+@code {
+    private List<Domain.Entities.Planta> _plantas = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        _plantas = (await PlantService.GetAllAsync()).OrderBy(p => p.Nombre).ToList();
+    }
+}

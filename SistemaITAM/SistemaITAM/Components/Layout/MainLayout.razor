@@ -1,9 +1,40 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
 
-@Body
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider Position="SnackbarPosition.TopRight" />
 
-<div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">🗙</span>
-</div>
+<MudLayout>
+    <MudAppBar Elevation="2" Color="Color.Primary">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="ToggleDrawer" />
+        <MudText Typo="Typo.h6" Class="ml-2">ITAM v2 - Sistema Vivo</MudText>
+    </MudAppBar>
+
+    <MudDrawer @bind-Open="_drawerOpen" Elevation="1" Color="Color.Default" Variant="DrawerVariant.Responsive">
+        <MudNavMenu Dense="true">
+            <MudNavLink Href="/" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+            <MudNavLink Href="/activos" Icon="@Icons.Material.Filled.Inventory">Activos</MudNavLink>
+            <MudNavLink Href="/equipos" Icon="@Icons.Material.Filled.Computer">Equipos TI</MudNavLink>
+            <MudNavLink Href="/moviles" Icon="@Icons.Material.Filled.Smartphone">Equipos Móviles</MudNavLink>
+            <MudNavLink Href="/usuarios" Icon="@Icons.Material.Filled.People">Usuarios</MudNavLink>
+            <MudNavLink Href="/areas" Icon="@Icons.Material.Filled.Apartment">Áreas</MudNavLink>
+            <MudNavLink Href="/plantas" Icon="@Icons.Material.Filled.LocationCity">Plantas</MudNavLink>
+            <MudNavLink Href="/asignaciones" Icon="@Icons.Material.Filled.AssignmentInd">Asignaciones</MudNavLink>
+            <MudNavLink Href="/movimientos" Icon="@Icons.Material.Filled.History">Historial de Movimientos</MudNavLink>
+            <MudNavLink Href="/reportes" Icon="@Icons.Material.Filled.Description">Reportes</MudNavLink>
+            <MudNavLink Href="/exportaciones" Icon="@Icons.Material.Filled.FileDownload">Exportaciones</MudNavLink>
+        </MudNavMenu>
+    </MudDrawer>
+
+    <MudMainContent Class="pa-6">
+        <MudPaper Elevation="0" Class="pa-4" Style="min-height: calc(100vh - 64px);">
+            @Body
+        </MudPaper>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private bool _drawerOpen = true;
+
+    private void ToggleDrawer() => _drawerOpen = !_drawerOpen;
+}

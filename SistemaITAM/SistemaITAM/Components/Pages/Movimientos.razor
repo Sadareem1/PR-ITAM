@@ -1,0 +1,73 @@
+@page "/movimientos"
+@inject IServicioMovimientos MovementLogService
+@inject IServicioPlantas PlantService
+@inject IServicioAreas AreaService
+
+<PageTitle>Historial de movimientos</PageTitle>
+
+<MudPaper Class="pa-4" Elevation="2">
+    <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+        <MudSelect @bind-Value="_tipo" Label="Tipo" T="TipoMovimiento?" Clearable="true" Immediate="true" ValueChanged="async _ => await LoadAsync()">
+            @foreach (var tipo in Enum.GetValues<TipoMovimiento>())
+            {
+                <MudSelectItem Value="tipo">@tipo</MudSelectItem>
+            }
+        </MudSelect>
+        <MudSelect @bind-Value="_planta" Label="Planta" T="Guid?" Clearable="true" Immediate="true" ValueChanged="async _ => await LoadAsync()">
+            @foreach (var planta in _plantas)
+            {
+                <MudSelectItem Value="planta.Id">@planta.Nombre</MudSelectItem>
+            }
+        </MudSelect>
+        <MudSelect @bind-Value="_area" Label="Área" T="Guid?" Clearable="true" Immediate="true" ValueChanged="async _ => await LoadAsync()">
+            @foreach (var area in _areas)
+            {
+                <MudSelectItem Value="area.Id">@area.Nombre</MudSelectItem>
+            }
+        </MudSelect>
+        <MudDatePicker @bind-Date="_desde" Label="Desde" Clearable="true" Dense="true" Immediate="true" DateChanged="async _ => await LoadAsync()" />
+        <MudDatePicker @bind-Date="_hasta" Label="Hasta" Clearable="true" Dense="true" Immediate="true" DateChanged="async _ => await LoadAsync()" />
+    </MudStack>
+
+    <MudTable Items="@_movimientos" Dense="true" Hover="true" Class="mt-4">
+        <HeaderContent>
+            <MudTh>Fecha</MudTh>
+            <MudTh>Activo</MudTh>
+            <MudTh>Movimiento</MudTh>
+            <MudTh>Ubicación</MudTh>
+            <MudTh>Módulo</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Fecha">@context.Fecha.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</MudTd>
+            <MudTd DataLabel="Activo">@context.Activo</MudTd>
+            <MudTd DataLabel="Movimiento">@context.Tipo - @context.Descripcion</MudTd>
+            <MudTd DataLabel="Ubicación">@context.Planta / @context.Area</MudTd>
+            <MudTd DataLabel="Módulo">@context.Modulo</MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudPaper>
+
+@code {
+    private TipoMovimiento? _tipo;
+    private Guid? _planta;
+    private Guid? _area;
+    private DateTime? _desde;
+    private DateTime? _hasta;
+    private List<MovimientoDto> _movimientos = [];
+    private List<Domain.Entities.Planta> _plantas = [];
+    private List<Domain.Entities.Area> _areas = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        _plantas = (await PlantService.GetAllAsync()).ToList();
+        _areas = (await AreaService.GetAllAsync()).ToList();
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        var filter = new FiltroMovimientos(null, _tipo, _planta, _area, _desde, _hasta);
+        _movimientos = (await MovementLogService.GetAsync(filter)).ToList();
+        StateHasChanged();
+    }
+}

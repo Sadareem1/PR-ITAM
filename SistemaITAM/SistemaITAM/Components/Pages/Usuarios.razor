@@ -1,0 +1,99 @@
+@page "/usuarios"
+@inject IServicioUsuarios UserService
+@inject IServicioPlantas PlantService
+@inject IServicioAreas AreaService
+
+<PageTitle>Usuarios</PageTitle>
+
+<MudPaper Class="pa-4" Elevation="2">
+    <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+        <MudSelect Guid?="@_selectedPlanta" Label="Planta" T="Guid?" Clearable="true" @onchange="OnFilterChanged">
+            @foreach (var planta in _plantas)
+            {
+                <MudSelectItem Value="planta.Id">@planta.Nombre</MudSelectItem>
+            }
+        </MudSelect>
+        <MudSelect Guid?="@_selectedArea" Label="Área" T="Guid?" Clearable="true" @onchange="OnFilterChanged">
+            @foreach (var area in _areas)
+            {
+                <MudSelectItem Value="area.Id">@area.Nombre</MudSelectItem>
+            }
+        </MudSelect>
+        <MudTextField @bind-Value="_search" Placeholder="Buscar por nombre o DNI" Immediate="true" OnBlurred="OnFilterChanged" OnDebounceIntervalElapsed="OnFilterChanged" DebounceInterval="300" />
+        <MudChip Color="Color.Primary" Variant="Variant.Filled">Usuarios encontrados: @_totalUsuarios</MudChip>
+    </MudStack>
+
+    <MudTable Items="@_usuarios" Dense="true" Hover="true" Class="mt-4">
+        <HeaderContent>
+            <MudTh>Usuario</MudTh>
+            <MudTh>DNI</MudTh>
+            <MudTh>Planta</MudTh>
+            <MudTh>Área</MudTh>
+            <MudTh>Estado</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Usuario">@context.Nombres @context.Apellidos</MudTd>
+            <MudTd DataLabel="DNI">@context.DNI</MudTd>
+            <MudTd DataLabel="Planta">@context.Planta</MudTd>
+            <MudTd DataLabel="Área">@context.Area</MudTd>
+            <MudTd DataLabel="Estado">
+                <MudChip Color="@GetEstadoColor(context.Estado)" Variant="Variant.Outlined">@context.Estado</MudChip>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudPaper>
+
+<MudPaper Class="pa-4 mt-4" Elevation="1">
+    <MudText Typo="Typo.h6" Class="mb-2">Total de usuarios por área</MudText>
+    <MudTable Items="@_totalesPorArea" Dense="true">
+        <HeaderContent>
+            <MudTh>Área</MudTh>
+            <MudTh>Planta</MudTh>
+            <MudTh>Total</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Área">@context.Area</MudTd>
+            <MudTd DataLabel="Planta">@context.Planta</MudTd>
+            <MudTd DataLabel="Total">@context.TotalUsuarios</MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudPaper>
+
+@code {
+    private Guid? _selectedPlanta;
+    private Guid? _selectedArea;
+    private string? _search;
+    private List<UsuarioDto> _usuarios = [];
+    private List<UsuarioPorAreaDto> _totalesPorArea = [];
+    private List<Domain.Entities.Planta> _plantas = [];
+    private List<Domain.Entities.Area> _areas = [];
+    private int _totalUsuarios;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _plantas = (await PlantService.GetAllAsync()).ToList();
+        _areas = (await AreaService.GetAllAsync()).ToList();
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        var filter = new FiltroUsuarios(_selectedPlanta, _selectedArea, _search);
+        _usuarios = (await UserService.GetAsync(filter)).ToList();
+        _totalesPorArea = (await UserService.GetTotalsByAreaAsync(_selectedPlanta)).ToList();
+        _totalUsuarios = _usuarios.Count;
+        StateHasChanged();
+    }
+
+    private async Task OnFilterChanged()
+    {
+        await LoadAsync();
+    }
+
+    private Color GetEstadoColor(EstadoUsuario estado) => estado switch
+    {
+        EstadoUsuario.Activo => Color.Success,
+        EstadoUsuario.Suspendido => Color.Warning,
+        _ => Color.Error
+    };
+}

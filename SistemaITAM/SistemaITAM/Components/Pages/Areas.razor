@@ -1,0 +1,32 @@
+@page "/areas"
+@inject IServicioAreas AreaService
+@inject IServicioUsuarios UserService
+
+<PageTitle>Áreas</PageTitle>
+
+<MudPaper Class="pa-4" Elevation="2">
+    <MudTable Items="@_areas" Dense="true" Hover="true">
+        <HeaderContent>
+            <MudTh>Área</MudTh>
+            <MudTh>Estado</MudTh>
+            <MudTh>Total usuarios</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Área">@context.Area</MudTd>
+            <MudTd DataLabel="Estado">@(_areasActivas.Contains(context.Area) ? "Activa" : "Inactiva")</MudTd>
+            <MudTd DataLabel="Total">@context.TotalUsuarios</MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudPaper>
+
+@code {
+    private List<UsuarioPorAreaDto> _areas = [];
+    private HashSet<string> _areasActivas = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var areas = await AreaService.GetAllAsync();
+        _areasActivas = areas.Where(a => a.Activa).Select(a => a.Nombre).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        _areas = (await UserService.GetTotalsByAreaAsync()).OrderByDescending(a => a.TotalUsuarios).ToList();
+    }
+}
